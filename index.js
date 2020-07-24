@@ -1,5 +1,10 @@
 const { ApolloServer, gql } = require("apollo-server");
-const { getApplications, getAllVersions,getVersionsByApp,createVersion } = require("./dataService.js");
+const {
+  getApplications,
+  getAllVersions,
+  getVersionsByApp,
+  createVersion,
+} = require("./dataService.js");
 // A schema is a collection of type definitions (hence "typeDefs")
 // that together define the "shape" of queries that are executed against
 // your data.
@@ -26,7 +31,7 @@ const typeDefs = gql`
     patch: String!
     description: String!
     application: Application
-    #   details: VersionDetail[]
+    details: VersionDetail[]
     #   externalLinks:ExtLink[]
     #   deployment:Deployment
   }
@@ -51,20 +56,29 @@ const typeDefs = gql`
     name: String!
     description: String!
   }
-  #   type VersionDetail{
-  #       id:ID!,
-  #       name:String!
-  #       description:String!
-  #       status:Status!
-  #       links:[ExtLink]
+    type VersionDetail{
+        id:ID!,
+        name:String!
+        description:String!
+        status:Status!
+        links:[ExtLink]
+    }
 
-  #   }
-  #   type Status{
-  #       id:ID!
-  #       code:String!
-  #       name:String!
-  #       description:String!
-  #   }
+    type TargetSystem{
+      id:ID!,
+    name:String!,
+    description:String,
+    isActive:Boolean,
+    tenant: Tenant!   
+    }
+
+
+    type Status{
+        id:ID!
+        code:String!
+        name:String!
+        description:String!
+    }
   #   type ExtLink{
   #       id:ID!
   #       name:String!
@@ -87,7 +101,7 @@ const typeDefs = gql`
   }
 
   type Mutation{
-      addVersion(major:String!,minor:String!,patch:String!,appId:ID!):Version!
+      addVersion(major:String!,minor:String!,patch:String!,description:String!,appId:ID!):Version!
   }
 `;
 
@@ -95,14 +109,15 @@ const typeDefs = gql`
 // schema. This resolver retrieves books from the "books" array above.
 const resolvers = {
   Query: {
-    // books: () => Books,
     versions: () => getAllVersions(),
-    versionsByApp:(parent,args,context,info)=>getVersionsByApp(parent,args,context,info),
-    applicationsByTenant: (parent,args,context,info) => getApplications(args),
+    versionsByApp: (parent, args, context, info) =>
+      getVersionsByApp(parent, args, context, info),
+    applicationsByTenant: (parent, args, context, info) =>
+      getApplications(args),
   },
-  Mutation:{
-      addVersion:(parent,args,context,info)=>createVersion(args)
-    }
+  Mutation: {
+    addVersion: (parent, args, context, info) => createVersion(args),
+  },
 };
 
 // The ApolloServer constructor requires two parameters: your schema
