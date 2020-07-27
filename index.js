@@ -9,6 +9,7 @@ const {
   getTenants,
   getChangeTypes,
   getDetails,
+  getVersionById,
 } = require("./dataService.js");
 
 //const resolvers = require("./resolvers");
@@ -86,11 +87,13 @@ const typeDefs = gql`
   # clients can execute, along with the return type for each. In this
   type Query {
     versions: [Version]
+    versionById(id:ID!):Version
     versionsByApp(appIds: [ID]!): [Version]
     applicationsByTenant(tenantId: ID!): [Application]
     tenants: [Tenant]
     statuses(tenantId: ID!): [Status]
     targetSystems(tenantId: ID!): [TargetSystem]
+
   }
 
   type Mutation {
@@ -109,6 +112,7 @@ const resolvers = {
     versionsByApp: (root,args,context,info) => getVersionsByApp(args),
     applicationsByTenant: (root,args,context,info) => getApplications(args),
     tenants:()=>getTenants(),
+    versionById:(root,args,context,info) => getVersionById(args),
   },
   Mutation: {
     addVersion: (root,args,context,info) => createVersion(args),
