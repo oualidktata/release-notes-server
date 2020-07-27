@@ -1,50 +1,86 @@
 const { version } = require("graphql");
 const { v4: uuidv4 } = require("uuid");
-const { VERSIONS, APPLICATIONS } = require("./rawData");
+const {
+  VERSIONS,
+  APPLICATIONS,
+  TENANTS,
+  TARGET_SYSTEMS,
+  LINKS,
+  STATUSES,
+  CHANGE_TYPES,
+  VERSION_DETAILS,
+} = require("./rawData");
 
-const getAllVersions = function () {
-  return VERSIONS;
+const getAllVersions = () => {
+  
+let allVersions=VERSIONS.map(v=>{
+
+  let newVersionWithApp={...v}
+  newVersionWithApp.application=APPLICATIONS.find(a=>a.id==v.appId);
+  return newVersionWithApp;
+});
+console.log(
+  "\x1b[36m%s\x1b[0m",
+  `versionToAdd ${JSON.stringify(allVersions)}`
+);
+  return allVersions;
+  
 };
-const getVersionsByApp = function (parent, args, context, info) {
-  console.log("\x1b[36m%s\x1b[0m", JSON.stringify(args) + "\n");
-  console.log("\x1b[32m", JSON.stringify(VERSIONS) + "\n");
-  let res = VERSIONS.filter((x) => args.appIds.includes(x.application.id));
-  console.log("\x1b[36m%s\x1b[0m", JSON.stringify(res));
-  return res;
+const getVersionsByApp = ({ appIds }) => {
+  let versionsToFetch = VERSIONS.filter((x) => appIds.includes(x.appId)).map(
+    (v) => {
+      let newVersionWithApp = { ...v };
+      var appToAppend = APPLICATIONS.find((a) => a.id == newVersionWithApp.appId);
+      newVersionWithApp.application = appToAppend;
+      return newVersionWithApp;
+    }
+  );
+  console.log("\x1b[36m%s\x1b[0m", JSON.stringify(versionsToFetch));
+  return versionsToFetch;
 };
 const createVersion = function ({ major, minor, patch, description, appId }) {
-  let app = APPLICATIONS.filter((x) => x.id === appId)[0];
-  console.log(`${JSON.stringify(app)}`);
   let versionToAdd = {
     id: uuidv4(),
     major: major,
     minor: minor,
     patch: patch,
     description: description || "",
-    application: app
+    appId: appId,
   };
-  
-  //versionToAdd.application = app;
-  console.log("\x1b[36m%s\x1b[0m",`versionToAdd ${JSON.stringify(versionToAdd)}`);
-  console.log(`VERSIONS After Insertion${JSON.stringify(versionToAdd)}`);
-  VERSIONS.push(versionToAdd);
-  return versionToAdd;
+   VERSIONS.push(versionToAdd);
+   //return the extended model
+   let addedVersion = VERSIONS.find(v=>v.id===versionToAdd.id);
+   let app = APPLICATIONS.find(x => x.id == appId);
+   addedVersion.application=app;
+   console.log(`VERSIONS After Insertion${JSON.stringify(VERSIONS)}`);
+
+  return addedVersion;
 };
 
-const getApplications = function ({ tenantId }) {
-  //console.log("\x1b[36m%s\x1b[0m", JSON.stringify(tenantId) + "\n");
-  //console.log("\x1b[32m", JSON.stringify(APPLICATIONS) + "\n");
-  let res = APPLICATIONS.filter((x) => x.tenant.id == tenantId);
+const getDetails = function ({ versionId }) {
+  let res = VERSION_DETAILS.filter((x) => x.versionId === versionId);
   console.log("\x1b[36m%s\x1b[0m", JSON.stringify(res));
   return res;
 };
-const getApplications = function ({ tenantId }) {
-  //console.log("\x1b[36m%s\x1b[0m", JSON.stringify(tenantId) + "\n");
-  //console.log("\x1b[32m", JSON.stringify(APPLICATIONS) + "\n");
-  let res = APPLICATIONS.filter((x) => x.tenant.id == tenantId);
-  console.log("\x1b[36m%s\x1b[0m", JSON.stringify(res));
-  return res;
+
+//Basic data
+const getApplications = ({ tenantId }) => {
+  var apps = APPLICATIONS.filter((x) => x.tenantId === tenantId).map((x) => {
+    var newAppWithTenant = { ...x };
+    newAppWithTenant.tenant = TENANTS.find((t) => t.id == x.tenantId);
+    
+    return newAppWithTenant;
+  });
+  
+  return apps;
 };
+const getTargetSystems = ({ tenantId }) =>
+  TARGET_SYSTEMS.filter((x) => x.tenant.id == tenantId);
+const getStatuses = ({ tenantId }) =>
+  STATUSES.filter((x) => x.tenant.id == tenantId);
+const getChangeTypes = ({ tenantId }) =>
+  CHANGE_TYPES.filter((x) => x.tenant.id == tenantId);
+const getTenants = () => TENANTS;
 
 module.exports = {
   getAllVersions,
@@ -55,5 +91,5 @@ module.exports = {
   getStatuses,
   getTenants,
   getChangeTypes,
-  getApplications,
+  getDetails,
 };

@@ -6,7 +6,7 @@ const VERSIONS = [
     patch: "0",
     description: "1st version",
     details:["v1-0001","v1-0002","v2-0002"],
-    applicationId:"app-1", 
+    appId:"app-1", 
   },
   {
     id: "v2",
@@ -14,7 +14,7 @@ const VERSIONS = [
     minor: "2",
     patch: "0",
     description: "2nd version",
-    applicationId:"app-2", 
+    appId:"app-2", 
   }
 ];
 
@@ -66,44 +66,20 @@ const APPLICATIONS = [
     id: "app-1",
     name: "AGATE",
     description: "Best App ever",
-    tenant: {
-      id: "Dev",
-      name: "tenant name",
-      location: {
-        id: "1212",
-        name: "MTL",
-        description: "Montreal office",
-      },
-    },
+    tenantId:"1"
   },
   {
     id: "app-2",
     name: "ADP",
     description: "Awaswome App",
-    tenant: {
-      id: "Dev",
-      name: "Dev Team",
-      location: {
-        id: "1212",
-        name: "MTL",
-        description: "Montreal office",
-      },
-    },
+    tenantId:"1"
   },
   {
     id: "app-3",
     name: "Facturation",
     description: "Awaswome App",
-    tenant: {
-      id: "Dev",
-      name: "Dev Team",
-      location: {
-        id: "1212",
-        name: "MTL",
-        description: "Montreal office",
-      },
-    },
-  },
+    tenantId:"1"
+  }
 ];
 const TARGET_SYSTEMS=[{
    id:"1",
@@ -137,48 +113,56 @@ const TARGET_SYSTEMS=[{
 const TENANTS=[{
     id: "1",
     name: "Quantum MTL",
+    description:"Quantum MTL",
     location: "Montreal",
 },
 {
   id: "2",
   name: "DevTeam",
+  description:"Dev MTL",
   location: "Montreal",
 },
 {
   id: "3",
   name: "Quantum Guelph",
+  description:"Quantum Guelph team",
   location: "Guelph",
 }
-]
+];
 const STATUSES=[
   {
     id:"1",
     code:"Roadmapped",
     description:"This change is planned",
-    isActive:true
+    isActive:true,
+   tenantId:"1"    
   }, {
     id:"2",
     code:"Planned",
     description:"This change is planned",
-    isActive:true
+    isActive:true,
+    tenantId:"1"    
   },
   {
     id:"3",
     code:"In progress",
     description:"This change is planned",
-    isActive:true
+    isActive:true,
+    tenantId:"1"    
   },
   {
     id:"4",
     code:"Pending MEP Approval",
     description:"This change is planned",
-    isActive:true
+    isActive:true,
+    tenantId:"1"    
   },
   {
     id:"5",
     code:"Completed Approval",
     description:"This change is planned",
-    isActive:true
+    isActive:true,
+    tenantId:"1"    
   }
 ];
 const CHANGE_TYPES=[
@@ -186,32 +170,36 @@ const CHANGE_TYPES=[
     id:"1",
     name:"Feature",
     description:"New Feature",
-    isActive:true
-
+    isActive:true,
+    tenantId:"1"  
   },
   {
     id:"2",
     name:"Bug Fix",
     description:"Bug Fix",
-    isActive:true
+    isActive:true,
+    tenantId:"1"  
   },
   {
     id:"3",
     name:"Enhancement",
     description:"Enhancement",
-    isActive:true
+    isActive:true,
+    tenantId:"1"  
   },
   {
     id:"4",
     name:"Data Change",
     description:"Data Change",
-    isActive:true
+    isActive:true,
+    tenantId:"1"  
   },
   {
     id:"5",
     name:"Documentation",
     description:"Documentation",
-    isActive:true
+    isActive:true,
+    tenantId:"1"  
   }
 ];
 
@@ -223,5 +211,5 @@ module.exports = {
   CHANGE_TYPES,
   TARGET_SYSTEMS,
   LINKS,
-  
+  TENANTS
 };
