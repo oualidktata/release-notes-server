@@ -3,13 +3,15 @@ const {
   getAllVersions,
   getVersionsByApp,
   getApplications,
-  createVersion,
   getTargetSystems,
   getStatuses,
   getTenants,
   getChangeTypes,
   getDetails,
   getVersionById,
+  getLinks,
+  createVersion,
+  deleteVersion
 } = require("./dataService.js");
 
 //const resolvers = require("./resolvers");
@@ -27,19 +29,20 @@ const typeDefs = gql`
   
   type VersionDetail {
     id: ID!
-    name: String!
-    description: String!
+    shortDescription: String!
+    longDescription: String!
     status: Status!
-    ChangeType: ChangeType!
+    changeType: ChangeType!
     links: [Link]
-    version:Version!
+    version:Version!,
+    isActive:Boolean
   }
-
   type Link {
     id: ID!
     versionDetailId: ID!
     name: String!
-    TargetSystemId: ID!
+    link:String!
+    targetSystem: TargetSystem!
   }
 
   # Basic data types
@@ -87,13 +90,17 @@ const typeDefs = gql`
   # clients can execute, along with the return type for each. In this
   type Query {
     versions: [Version]
-    versionById(id:ID!):Version
+    versionById (id:ID!): Version
     versionsByApp(appIds: [ID]!): [Version]
-    applicationsByTenant(tenantId: ID!): [Application]
-    tenants: [Tenant]
-    statuses(tenantId: ID!): [Status]
-    targetSystems(tenantId: ID!): [TargetSystem]
+    versionDetailsByVersionId(versionId: ID!): [VersionDetail]
 
+
+    applications(tenantId: ID!): [Application]
+    targetSystems(tenantId: ID!): [TargetSystem]
+    statuses(tenantId: ID!): [Status]
+    changeTypes(tenantId:ID!):[ChangeType]
+    links(detailId:ID!):[Link]
+    tenants: [Tenant]
   }
 
   type Mutation {
@@ -104,18 +111,27 @@ const typeDefs = gql`
       description: String!
       appId: ID!
     ): Version!
+
+    # deleteVersion(id:ID!):Boolean!
   }
 `;
 const resolvers = {
   Query: {
     versions: () => getAllVersions(),
     versionsByApp: (root,args,context,info) => getVersionsByApp(args),
-    applicationsByTenant: (root,args,context,info) => getApplications(args),
-    tenants:()=>getTenants(),
     versionById:(root,args,context,info) => getVersionById(args),
+    versionDetailsByVersionId:(root,args,context,info)=>getDetails(args),
+    applications: (root,args,context,info) => getApplications(args),
+    changeTypes: (root,args,context,info) => getChangeTypes(args),
+    statuses: (root,args,context,info) => getStatuses(args),
+    targetSystems: (root,args,context,info) => getTargetSystems(args),
+    tenants:()=>getTenants(),
+    links:(root,args,context,info) => getLinks(args),
   },
   Mutation: {
     addVersion: (root,args,context,info) => createVersion(args),
+    // deleteVersion: (root,args,context,info) => deleteVersion(args),
+
   },
 };
 // The ApolloServer constructor requires two parameters: your schema

@@ -26,7 +26,8 @@ const VERSION_DETAILS=[
     longDescription:"Added admin screens for basic data.....",
     statusId:"1",
     changeTypeId:"1",
-    links:["1","2"]
+    linkIds:["1","2"],
+    isActive:true
   },
   {
     id:"v1-0002",
@@ -35,28 +36,32 @@ const VERSION_DETAILS=[
     longDescription:"Added new version Details",
     statusId:"1",
     changeTypeId:"1",
-    links:["1","2"]
+    linkIds:["1","2"],
+    isActive:true
   },
 ];
 
 const LINKS=[
   {
-    id:"link1",
+    id:"1",
     versionDetailId:"v1-0001",
+    link:"http://www.google.com",
     name:"CH-458",
-    TargetSystemId:"1",
+    targetSystemId:"1",
   },
   {
-    id:"link2",
+    id:"2",
     versionDetailId:"v1-0001",
+    link:"http://www.facebook.com",
     name:"45889",
-    TargetSystemId:"2",
+    targetSystemId:"2",
   },
   {
-    id:"link3",
+    id:"3",
     versionDetailId:"v1-0002",
+    link:"http://www.amazon.com",
     name:"SD-520",
-    TargetSystemId:"1",
+    targetSystemId:"1",
   },
 ]
 
@@ -82,14 +87,14 @@ const APPLICATIONS = [
   }
 ];
 const TARGET_SYSTEMS=[{
-   id:"1",
+    id:"1",
     name:"TFS",
     description:"AzureDevOps",
     isActive:true,
     tenantId:"1"    
 },
 {
-  id:"2",
+    id:"2",
    name:"Service Desk",
    description:"Manage Engin Service Desk",
    isActive:true,
