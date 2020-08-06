@@ -1,4 +1,3 @@
-const { version } = require("graphql");
 const { v4: uuidv4 } = require("uuid");
 const {
   VERSIONS,
@@ -39,7 +38,7 @@ const getVersionsByApp = ({ appIds }) => {
   return versionsToFetch;
 };
 
-const getVersionById = ({ id }) => {
+const getVersionById = ({id}) => {
   let v = VERSIONS.find((ver) => ver.id === id);
   if (!v) return;
   let versionToReturn = { ...v };
@@ -78,26 +77,11 @@ const deleteVersion = ({ id }) => {
   return false;
 };
 
-const getDetails = ({ versionId }) => {
+const getDetails = (versionId) => {
   let details = VERSION_DETAILS.filter(x => x.versionId === versionId);
-  let detailsToReturn = details.map(detail => {
-    detail.changeType = CHANGE_TYPES.find(c => c.id == detail.changeTypeId);
-    detail.status = STATUSES.find(c => c.id == detail.statusId);
-    let rawLinks = LINKS.filter(l => detail.linkIds.includes(l.id));
-   rawLinks.map(l => {
-      l.targetSystem = getSingleTargetSystem(l.targetSystemId);
-      return l;
-    });
-    detail.links= rawLinks;
- return detail;
-  });
+  let detailsToReturn = details.map(detail => getDetail(detail));
   return detailsToReturn;
 };
-
-const getSingleTargetSystem = (id) => {
-  return TARGET_SYSTEMS.find(x => x.id == id);
-};
-
 //Basic data
 const getApplications = ({ tenantId }) => {
   var apps = APPLICATIONS.filter((x) => x.tenantId === tenantId).map((x) => {
@@ -108,14 +92,14 @@ const getApplications = ({ tenantId }) => {
 
   return apps;
 };
-const getLinks = ({ detailId }) => {
+const getLinks = (detailId ) => {
   console.log("\x1b[35m%s\x1b[0m", JSON.stringify(detailId));
    
   let newLinks=LINKS.filter(x => x.versionDetailId === detailId).map(l => {
     var newLink = { ...l };
     console.log("\x1b[35m%s\x1b[0m", JSON.stringify(newLink));
-    console.log("\x1b[35m%s\x1b[0m", JSON.stringify(getSingleTargetSystem(l.targetSystemId)));
-    newLink.targetSystem = getSingleTargetSystem(l.targetSystemId);
+    console.log("\x1b[35m%s\x1b[0m", JSON.stringify(getTargetSystem(l.targetSystemId)));
+    newLink.targetSystem = getTargetSystem(l.targetSystemId);
 
     return newLink;
   });
@@ -123,26 +107,49 @@ const getLinks = ({ detailId }) => {
   return newLinks;
 };
 
-const getTargetSystems = ({ tenantId }) =>
-  TARGET_SYSTEMS.filter((x) => x.tenant.id == tenantId);
-const getStatuses = ({ tenantId }) =>
-  STATUSES.filter((x) => x.tenant.id == tenantId);
-const getChangeTypes = ({ tenantId }) =>
-  CHANGE_TYPES.filter((x) => x.tenant.id == tenantId);
+const getDetail=(detailId)=>{
+  {
+    let detail=VERSION_DETAILS.find(x=>x.id=detailId);
+    detail.changeType = CHANGE_TYPES.find(c => c.id == detail.changeTypeId);
+    detail.status = STATUSES.find(c => c.id == detail.statusId);
+    let rawLinks = LINKS.filter(l => detail.linkIds.includes(l.id));
+      rawLinks.map(l => {
+      l.targetSystem = getTargetSystem(l.targetSystemId);
+      return l;
+    });
+    detail.links= rawLinks;
+ return detail;
+  }
+}
+const getTargetSystem = (id) =>TARGET_SYSTEMS.find(x => x.id === id);
+const getStatus=(id)=>STATUSES.find(x=>x.id===id);
+const getApplication=(id)=>APPLICATIONS.find(x=>x.id===id);
+const getChangeType=(id)=>CHANGE_TYPES.find(x=>x.id===id);
 
+const getTargetSystems = ({ tenantId }) => TARGET_SYSTEMS.filter((x) => x.tenantId == tenantId);
+const getStatuses = ({ tenantId }) => STATUSES.filter((x) => x.tenantId == tenantId);
+const getChangeTypes = ({ tenantId }) => CHANGE_TYPES.filter((x) => x.tenantId == tenantId);
 const getTenants = () => TENANTS;
+
 module.exports = {
   getAllVersions,
   getVersionsByApp,
+  
   getApplications,
   getTargetSystems,
   getStatuses,
   getTenants,
-
   getChangeTypes,
   getDetails,
   getVersionById,
+  
+  getDetail,
   getLinks,
+
+getChangeType,
+getApplication,
+getStatus,
+getTargetSystem,
 
   createVersion,
   deleteVersion,

@@ -1,0 +1,5 @@
+{
+    "jest.autoEnable": false,
+    "jest.enableCodeLens": false,
+    "jest.enableSnapshotPreviews": false
+}
