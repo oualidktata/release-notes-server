@@ -77,11 +77,16 @@ const deleteVersion = ({ id }) => {
   return false;
 };
 
-const getDetails = (versionId) => {
+const getDetailsByVersionId = ({versionId}) => {
+  console.log(versionId)
   let details = VERSION_DETAILS.filter(x => x.versionId === versionId);
-  let detailsToReturn = details.map(detail => getDetail(detail));
+  let detailsToReturn = details.map(detail => getFullDetail(detail));
   return detailsToReturn;
 };
+const getSimpleDetail=(versionDetailId)=>{
+  return VERSION_DETAILS.find(x => x.id === versionDetailId);
+}
+
 //Basic data
 const getApplications = ({ tenantId }) => {
   var apps = APPLICATIONS.filter((x) => x.tenantId === tenantId).map((x) => {
@@ -107,11 +112,10 @@ const getLinks = (detailId ) => {
   return newLinks;
 };
 
-const getDetail=(detailId)=>{
+const getFullDetail=(detail)=>{
   {
-    let detail=VERSION_DETAILS.find(x=>x.id=detailId);
-    detail.changeType = CHANGE_TYPES.find(c => c.id == detail.changeTypeId);
-    detail.status = STATUSES.find(c => c.id == detail.statusId);
+    detail.changeType = getChangeType(detail.changeTypeId);
+    detail.status = getStatus(detail.statusId);
     let rawLinks = LINKS.filter(l => detail.linkIds.includes(l.id));
       rawLinks.map(l => {
       l.targetSystem = getTargetSystem(l.targetSystemId);
@@ -140,10 +144,11 @@ module.exports = {
   getStatuses,
   getTenants,
   getChangeTypes,
-  getDetails,
+  getDetailsByVersionId,
   getVersionById,
   
-  getDetail,
+  getSimpleDetail,
+  getFullDetail,
   getLinks,
 
 getChangeType,
