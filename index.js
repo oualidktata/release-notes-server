@@ -1,22 +1,26 @@
 const { ApolloServer, gql } = require("apollo-server");
-const {
-  getAllVersions,
-  getVersionsByApp,
-  getApplications,
-  getTargetSystems,
-  getStatuses,
-  getTenants,
-  getChangeTypes,
-  getDetailsByVersionId,
-  getVersionById,
-  getLinks,
-  createVersion,
-  deleteVersion
-} = require("./dataService.js");
 
-//const resolvers = require("./resolvers");
+
+const resolvers = require("./resolvers").resolvers;
 
 const typeDefs = gql`
+
+input LinkInput{
+  name: String!
+  link:String!
+  targetSystemId: ID!
+}
+
+input VersionDetailInput{
+    versionId:ID!
+    shortDescription: String!
+    longDescription: String!
+    statusId: ID!
+    changeTypeId: ID!
+    isActive:Boolean
+    LinksInput: [LinkInput]
+}
+
   type Version {
     id: ID!
     major: String!
@@ -29,12 +33,12 @@ const typeDefs = gql`
   
   type VersionDetail {
     id: ID!
+    versionId:ID!
     shortDescription: String!
     longDescription: String!
     status: Status!
     changeType: ChangeType!
     links: [Link]
-    version:Version!,
     isActive:Boolean
   }
   type Link {
@@ -77,6 +81,7 @@ const typeDefs = gql`
     code: String!
     description: String!
     isActive: Boolean!
+    
   }
 
   type ChangeType {
@@ -111,29 +116,11 @@ const typeDefs = gql`
       description: String!
       appId: ID!
     ): Version!
-
+      addVersionDetail(input:VersionDetailInput):VersionDetail!
     # deleteVersion(id:ID!):Boolean!
   }
 `;
-const resolvers = {
-  Query: {
-    versions: () => getAllVersions(),
-    versionsByApp: (root,args,context,info) => getVersionsByApp(args),
-    versionById:(root,args,context,info) => getVersionById(args),
-    versionDetailsByVersionId:(root,args,context,info)=>getDetailsByVersionId(args),
-    applications: (root,args,context,info) => getApplications(args),
-    changeTypes: (root,args,context,info) => getChangeTypes(args),
-    statuses: (root,args,context,info) => getStatuses(args),
-    targetSystems: (root,args,context,info) => getTargetSystems(args),
-    tenants:()=>getTenants(),
-    links:(root,args,context,info) => getLinks(args),
-  },
-  Mutation: {
-    addVersion: (root,args,context,info) => createVersion(args),
-    // deleteVersion: (root,args,context,info) => deleteVersion(args),
 
-  },
-};
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
 const server = new ApolloServer({ typeDefs, resolvers });

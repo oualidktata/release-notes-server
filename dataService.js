@@ -66,6 +66,47 @@ const createVersion = function ({ major, minor, patch, description, appId }) {
 
   return addedVersion;
 };
+const createVersionDetail =({input})=> {
+
+  let { versionId, shortDescription, longDescription, statusId,LinksInput, changeTypeId,isActive =true}=input
+ let detailId=uuidv4();
+  //AddLinks first 2nd phase
+ let addedLinkIds=[]
+ if (LinksInput){
+  addedLinkIds=LinksInput.map(link=>{
+    let addedLink=createLink(detailId,link)
+  return addedLink.id;
+  })
+ }
+
+
+  let detailToAdd = {
+    id:detailId,
+    versionId: versionId,
+    shortDescription: shortDescription,
+    longDescription: longDescription,
+    statusId: statusId,
+    changeTypeId: changeTypeId,
+    linkIds:addedLinkIds,
+    isActive: isActive,
+  };
+
+  console.log(`DetailToAdd${JSON.stringify(detailToAdd)}`);
+  VERSION_DETAILS.push(detailToAdd);
+  //return the extended model
+  var simpleDetail=getSimpleDetail( detailToAdd.id) 
+  let fullDetail = getFullDetail(simpleDetail);
+  return fullDetail;
+};
+
+const createLink=(detailId,link)=>{
+
+link.id=uuidv4();
+link.versionDetailId=detailId;
+LINKS.push(link);
+return link;
+}
+
 const deleteVersion = ({ id }) => {
   let versionToDelete = VERSIONS.find((v) => v.id === versionToAdd.id);
   if (versionToDelete) {
@@ -78,13 +119,13 @@ const deleteVersion = ({ id }) => {
 };
 
 const getDetailsByVersionId = ({versionId}) => {
-  console.log(versionId)
   let details = VERSION_DETAILS.filter(x => x.versionId === versionId);
   let detailsToReturn = details.map(detail => getFullDetail(detail));
   return detailsToReturn;
 };
 const getSimpleDetail=(versionDetailId)=>{
-  return VERSION_DETAILS.find(x => x.id === versionDetailId);
+  let simpleDetail=VERSION_DETAILS.find(x => x.id === versionDetailId);
+  return simpleDetail;
 }
 
 //Basic data
@@ -98,14 +139,9 @@ const getApplications = ({ tenantId }) => {
   return apps;
 };
 const getLinks = (detailId ) => {
-  console.log("\x1b[35m%s\x1b[0m", JSON.stringify(detailId));
-   
   let newLinks=LINKS.filter(x => x.versionDetailId === detailId).map(l => {
     var newLink = { ...l };
-    console.log("\x1b[35m%s\x1b[0m", JSON.stringify(newLink));
-    console.log("\x1b[35m%s\x1b[0m", JSON.stringify(getTargetSystem(l.targetSystemId)));
     newLink.targetSystem = getTargetSystem(l.targetSystemId);
-
     return newLink;
   });
 
@@ -114,14 +150,22 @@ const getLinks = (detailId ) => {
 
 const getFullDetail=(detail)=>{
   {
+    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail)) ${JSON.stringify(detail)}`);
     detail.changeType = getChangeType(detail.changeTypeId);
+    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail.changeType)) ${JSON.stringify(detail.changeTypeId)}`);
     detail.status = getStatus(detail.statusId);
-    let rawLinks = LINKS.filter(l => detail.linkIds.includes(l.id));
+    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail.statusId)) ${JSON.stringify(detail.statusId)}`);
+    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail.linkIds)) ${JSON.stringify(detail.linkIds)}`);
+   
+    if (detail.linkIds){
+         let rawLinks = LINKS.filter(l => detail.linkIds.includes(l.id));
       rawLinks.map(l => {
       l.targetSystem = getTargetSystem(l.targetSystemId);
       return l;
     });
     detail.links= rawLinks;
+    }
+ 
  return detail;
   }
 }
@@ -138,7 +182,6 @@ const getTenants = () => TENANTS;
 module.exports = {
   getAllVersions,
   getVersionsByApp,
-  
   getApplications,
   getTargetSystems,
   getStatuses,
@@ -157,5 +200,6 @@ getStatus,
 getTargetSystem,
 
   createVersion,
+  createVersionDetail,
   deleteVersion,
 };
