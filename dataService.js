@@ -66,23 +66,27 @@ const createVersion = function ({ major, minor, patch, description, appId }) {
 
   return addedVersion;
 };
-const createVersionDetail = (input) => {
-  let {
-    versionId,
+const createVersionDetail = ({input}) => {
+  let {versionId,
     shortDescription,
     longDescription,
     statusId,
-    links,
+    linksInput,
     changeTypeId,
-    isActive = true,
-  } = input;
+    isActive = true}={...input}
   let detailId = uuidv4();
   //AddLinks first 2nd phase
   let addedLinkIds = [];
-  if (links) {
-    addedLinkIds = links.map(link => {
-      link.versionDetailId=detailId
-      let addedLink = upsertLink(link);
+  if (linksInput) {
+    addedLinkIds = linksInput.map(l => {
+      let linkToAdd={input:{
+        versionDetailId:detailId,
+        name:l.name,
+        link:l.link,
+        targetSystemId:l.targetSystemId
+
+      }}
+      let addedLink = upsertLink(linkToAdd);
       return addedLink.id;
     });
   }
@@ -106,13 +110,14 @@ const createVersionDetail = (input) => {
   return fullDetail;
 };
 
-const upsertLink = (linkInput) => {
-  if (!linkInput.id) {
-    linkInput.id = uuidv4();
+const upsertLink = ({input}) => {
+  let linkToAdd={}={...input}
+  if (!linkToAdd.id) {
+    linkToAdd.id = uuidv4();
   }
-  let index=LINKS.findIndex(link => link.id === linkInput.id)
-  LINKS.splice(index,index,linkInput);
-  return linkInput;
+  let index=LINKS.findIndex(link => link.id === linkToAdd.id)
+  LINKS.splice(index,index,linkToAdd);
+  return getFullLink(linkToAdd.id);
 };
  
 const deleteVersion = ({ id }) => {
@@ -169,7 +174,7 @@ const getFullDetail = (detail) => {
 };
 
 const getFullLink = (id) => {
-  let simpleLink = LINKS.find(l => l.id === id);
+  let simpleLink =getSimpleLink(id)
   if (!simpleLink)return null
   simpleLink.targetSystem = getTargetSystem(simpleLink.targetSystemId);
   return simpleLink;

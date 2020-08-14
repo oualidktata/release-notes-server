@@ -18,33 +18,40 @@ describe("upsert New link", () => {
 
     let newValue = firstLink.link + "Modified";
     firstLink.link = newValue;
-    updatedLink = upsertLink(firstLink);
+    let linkToAdd={
+      input:
+        {...firstLink}
+    }
+    linkToAdd.input.link=linkToAdd.input.link+"Modified";
+    updatedLink = upsertLink(linkToAdd);
 
     //console.log(result)
-    expect(updatedLink.link).to.be.equal(newValue);
+    expect(updatedLink.link).to.be.equal(linkToAdd.input.link);
   });
   it("should add a new Link to the detail", () => {
-    
-let newLink1={
+    let allLinkIdsBeforeAdd = getLinks("v1-0001");
+let newLinkInput1={input:{
     versionDetailId:"v1-0001",
     link:"http://www.newtestsystem.ca/rb222",
     name:"RB-222",
     targetSystemId:"2",
 }
-let newLink2={
+  
+}
+let newLinkInput2={input:{
     versionDetailId:"v1-0001",
     link:"http://www.newtestsystem.ca/rb222",
     name:"RB-222",
     targetSystemId:"2",
-}
+}}
 
-    let addedLink1 = upsertLink(newLink1);
-    let addedLink2 = upsertLink(newLink2);
+    let addedLink1 = upsertLink(newLinkInput1);
+    let addedLink2 = upsertLink(newLinkInput2);
     let allLinkIds = getLinks("v1-0001");
 
     //console.log(result)
-    expect(addedLink1).to.be.equal(newLink1);
-    expect(addedLink2).to.be.equal(newLink2);
-    expect(allLinkIds.length).to.be.equal(4)
+    expect(addedLink1.link).to.be.equal(newLinkInput1.input.link);
+    expect(addedLink2.link).to.be.equal(newLinkInput2.input.link);
+    expect(allLinkIds.length).to.be.equal(allLinkIdsBeforeAdd.length+2)
   });
 });

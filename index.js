@@ -7,12 +7,13 @@ const typeDefs = gql`
 
 input LinkInput {
   id: ID
-  versionDetailId:ID! 
+  versionDetailId:ID
   name:String!
   link:String!
   targetSystemId: ID!
   isActive: Boolean
 }
+
 
 input VersionDetailInput{
     versionId:ID!
@@ -21,7 +22,7 @@ input VersionDetailInput{
     statusId: ID!
     changeTypeId: ID!
     isActive:Boolean
-    LinksInput: [LinkInput]
+    linksInput: [LinkInput]
 }
 
   type Version {

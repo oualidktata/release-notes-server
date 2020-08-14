@@ -8,18 +8,17 @@ describe("getVersionDetails('v1')", () => {
         let result = getDetailsByVersionId({versionId:"v1"});
         console.log(result)
         expect(result).to.be.an('array')
-        expect(result.length).to.be.equal(2)
-        expect(result[0])
+        expect(result[0]).to.be.an("object")
     })
     it("should contain links", () => {
         let result = getDetailsByVersionId({versionId:"v1"});
         let linkIds = result[0].linkIds;
         //console.log(linkIds)
-        expect(result).to.be.an('array').lengthOf(2)
+        expect(result).to.be.an('array')
         expect(linkIds).to.be.an('array').lengthOf(2).that.includes("1","2")
         //expect(linkIds).to.contain("1","2")
     })
-    describe("getDetail should return child objects", () => {
+    describe("getDetail should return child objects", () => { 
         it("should return 2 links", () => {
             let simpleDetail=getSimpleDetail("v1-0001")
             let result = getFullDetail(simpleDetail);

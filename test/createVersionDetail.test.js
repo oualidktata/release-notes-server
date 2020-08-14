@@ -8,13 +8,13 @@ describe("create VersionDetail",()=>{
 
     it("should return a detail when valid detail",()=>{
 
-         let detail={
+         let detail={input:{
                 "versionId":"v1",
                 "shortDescription": "Added admin screens for basic data",
                 "longDescription": "Added admin screens for basic data.....",
                 "statusId":"1",
                 "changeTypeId":"1",
-                "links":[
+                "linksInput":[
                     {
                       link:"http://www.google.com",
                       name:"test-1",
@@ -26,7 +26,7 @@ describe("create VersionDetail",()=>{
                       targetSystemId:"2",
                     }],
                 "isActive": true
-        }
+        }}
         let result=createVersionDetail(detail);
         console.log(result)
         expect(result).to.be.an('object');
