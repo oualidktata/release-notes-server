@@ -13,7 +13,8 @@ const {
   getLinks,
   createVersion,
   createVersionDetail,
-  deleteVersion
+  deleteVersion,
+  upsertLink
 } = require("./dataService.js");
 const resolvers = {
   Query: {
@@ -32,7 +33,7 @@ const resolvers = {
     addVersion: (root,args,context,info) => createVersion(args),
     // deleteVersion: (root,args,context,info) => deleteVersion(args),
     addVersionDetail:(root,args,context,info) => createVersionDetail(args),
-
+    upsertLink:(root,args,context,info)=>upsertLink(args)
   },
 };
 

@@ -5,10 +5,13 @@ const resolvers = require("./resolvers").resolvers;
 
 const typeDefs = gql`
 
-input LinkInput{
-  name: String!
+input LinkInput {
+  id: ID
+  versionDetailId:ID! 
+  name:String!
   link:String!
   targetSystemId: ID!
+  isActive: Boolean
 }
 
 input VersionDetailInput{
@@ -47,6 +50,7 @@ input VersionDetailInput{
     name: String!
     link:String!
     targetSystem: TargetSystem!
+    isActive: Boolean
   }
 
   # Basic data types
@@ -99,7 +103,6 @@ input VersionDetailInput{
     versionsByApp(appIds: [ID]!): [Version]
     versionDetailsByVersionId(versionId: ID!): [VersionDetail]
 
-
     applications(tenantId: ID!): [Application]
     targetSystems(tenantId: ID!): [TargetSystem]
     statuses(tenantId: ID!): [Status]
@@ -117,6 +120,7 @@ input VersionDetailInput{
       appId: ID!
     ): Version!
       addVersionDetail(input:VersionDetailInput):VersionDetail!
+      upsertLink(input:LinkInput!):Link!
     # deleteVersion(id:ID!):Boolean!
   }
 `;

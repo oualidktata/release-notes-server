@@ -22,7 +22,7 @@ describe("create VersionDetail",()=>{
                     },
                     {
                       link:"http://www.facebook.com",
-                      name:"45889",
+                      name:"test-2",
                       targetSystemId:"2",
                     }],
                 "isActive": true
@@ -34,5 +34,6 @@ describe("create VersionDetail",()=>{
         expect(result.changeType.id).to.be.equal("1")
         expect(result.linkIds).to.be.an("array")
         expect(result.links[0].name).to.be.equal("test-1")
+        expect(result.links[1].name).to.be.equal("test-2")
     })
 })

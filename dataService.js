@@ -38,7 +38,7 @@ const getVersionsByApp = ({ appIds }) => {
   return versionsToFetch;
 };
 
-const getVersionById = ({id}) => {
+const getVersionById = ({ id }) => {
   let v = VERSIONS.find((ver) => ver.id === id);
   if (!v) return;
   let versionToReturn = { ...v };
@@ -66,47 +66,55 @@ const createVersion = function ({ major, minor, patch, description, appId }) {
 
   return addedVersion;
 };
-const createVersionDetail =({input})=> {
-
-  let { versionId, shortDescription, longDescription, statusId,LinksInput, changeTypeId,isActive =true}=input
- let detailId=uuidv4();
+const createVersionDetail = (input) => {
+  let {
+    versionId,
+    shortDescription,
+    longDescription,
+    statusId,
+    links,
+    changeTypeId,
+    isActive = true,
+  } = input;
+  let detailId = uuidv4();
   //AddLinks first 2nd phase
- let addedLinkIds=[]
- if (LinksInput){
-  addedLinkIds=LinksInput.map(link=>{
-    let addedLink=createLink(detailId,link)
-  return addedLink.id;
-  })
- }
-
+  let addedLinkIds = [];
+  if (links) {
+    addedLinkIds = links.map(link => {
+      link.versionDetailId=detailId
+      let addedLink = upsertLink(link);
+      return addedLink.id;
+    });
+  }
 
   let detailToAdd = {
-    id:detailId,
+    id: detailId,
     versionId: versionId,
     shortDescription: shortDescription,
     longDescription: longDescription,
     statusId: statusId,
     changeTypeId: changeTypeId,
-    linkIds:addedLinkIds,
+    linkIds: addedLinkIds,
     isActive: isActive,
   };
 
   console.log(`DetailToAdd${JSON.stringify(detailToAdd)}`);
   VERSION_DETAILS.push(detailToAdd);
   //return the extended model
-  var simpleDetail=getSimpleDetail( detailToAdd.id) 
+  var simpleDetail = getSimpleDetail(detailToAdd.id);
   let fullDetail = getFullDetail(simpleDetail);
   return fullDetail;
 };
 
-const createLink=(detailId,link)=>{
-
-link.id=uuidv4();
-link.versionDetailId=detailId;
-LINKS.push(link);
-return link;
-}
-
+const upsertLink = (linkInput) => {
+  if (!linkInput.id) {
+    linkInput.id = uuidv4();
+  }
+  let index=LINKS.findIndex(link => link.id === linkInput.id)
+  LINKS.splice(index,index,linkInput);
+  return linkInput;
+};
+ 
 const deleteVersion = ({ id }) => {
   let versionToDelete = VERSIONS.find((v) => v.id === versionToAdd.id);
   if (versionToDelete) {
@@ -118,65 +126,66 @@ const deleteVersion = ({ id }) => {
   return false;
 };
 
-const getDetailsByVersionId = ({versionId}) => {
-  let details = VERSION_DETAILS.filter(x => x.versionId === versionId);
-  let detailsToReturn = details.map(detail => getFullDetail(detail));
+const getDetailsByVersionId = ({ versionId }) => {
+  let details = VERSION_DETAILS.filter((x) => x.versionId === versionId);
+  let detailsToReturn = details.map((detail) => getFullDetail(detail));
   return detailsToReturn;
 };
-const getSimpleDetail=(versionDetailId)=>{
-  let simpleDetail=VERSION_DETAILS.find(x => x.id === versionDetailId);
+const getSimpleDetail = (versionDetailId) => {
+  let simpleDetail = VERSION_DETAILS.find((x) => x.id === versionDetailId);
   return simpleDetail;
-}
+};
 
 //Basic data
 const getApplications = ({ tenantId }) => {
   var apps = APPLICATIONS.filter((x) => x.tenantId === tenantId).map((x) => {
     var newAppWithTenant = { ...x };
-    newAppWithTenant.tenant = TENANTS.find((t) => t.id == x.tenantId);
+    newAppWithTenant.tenant = TENANTS.find((t) => t.id === x.tenantId);
     return newAppWithTenant;
   });
 
   return apps;
 };
-const getLinks = (detailId ) => {
-  let newLinks=LINKS.filter(x => x.versionDetailId === detailId).map(l => {
-    var newLink = { ...l };
-    newLink.targetSystem = getTargetSystem(l.targetSystemId);
-    return newLink;
-  });
+const getLinks = (detailId) => {
+  let newLinks = LINKS.filter((x) => x.versionDetailId === detailId).map(
+    (l) => {
+      var newLink = { ...l };
+      newLink.targetSystem = getTargetSystem(l.targetSystemId);
+      return newLink;
+    }
+  );
 
   return newLinks;
 };
+const getSimpleLink = (linkId) => LINKS.find(link => link.id === linkId);
 
-const getFullDetail=(detail)=>{
-  {
-    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail)) ${JSON.stringify(detail)}`);
-    detail.changeType = getChangeType(detail.changeTypeId);
-    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail.changeType)) ${JSON.stringify(detail.changeTypeId)}`);
-    detail.status = getStatus(detail.statusId);
-    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail.statusId)) ${JSON.stringify(detail.statusId)}`);
-    console.log("\x1b[35m%s\x1b[0m",` JSON.stringify(detail.linkIds)) ${JSON.stringify(detail.linkIds)}`);
-   
-    if (detail.linkIds){
-         let rawLinks = LINKS.filter(l => detail.linkIds.includes(l.id));
-      rawLinks.map(l => {
-      l.targetSystem = getTargetSystem(l.targetSystemId);
-      return l;
-    });
-    detail.links= rawLinks;
-    }
- 
- return detail;
+const getFullDetail = (detail) => {
+  detail.changeType = getChangeType(detail.changeTypeId);
+  detail.status = getStatus(detail.statusId)
+  if (detail.linkIds) {
+    detail.links = detail.linkIds.map(linkId =>getFullLink(linkId));
   }
-}
-const getTargetSystem = (id) =>TARGET_SYSTEMS.find(x => x.id === id);
-const getStatus=(id)=>STATUSES.find(x=>x.id===id);
-const getApplication=(id)=>APPLICATIONS.find(x=>x.id===id);
-const getChangeType=(id)=>CHANGE_TYPES.find(x=>x.id===id);
+  return detail;
+};
 
-const getTargetSystems = ({ tenantId }) => TARGET_SYSTEMS.filter((x) => x.tenantId == tenantId);
-const getStatuses = ({ tenantId }) => STATUSES.filter((x) => x.tenantId == tenantId);
-const getChangeTypes = ({ tenantId }) => CHANGE_TYPES.filter((x) => x.tenantId == tenantId);
+const getFullLink = (id) => {
+  let simpleLink = LINKS.find(l => l.id === id);
+  if (!simpleLink)return null
+  simpleLink.targetSystem = getTargetSystem(simpleLink.targetSystemId);
+  return simpleLink;
+};
+
+const getTargetSystem = (id) => TARGET_SYSTEMS.find((x) => x.id === id);
+const getStatus = (id) => STATUSES.find((x) => x.id === id);
+const getApplication = (id) => APPLICATIONS.find((x) => x.id === id);
+const getChangeType = (id) => CHANGE_TYPES.find((x) => x.id === id);
+
+const getTargetSystems = ({ tenantId }) =>
+  TARGET_SYSTEMS.filter((x) => x.tenantId == tenantId);
+const getStatuses = ({ tenantId }) =>
+  STATUSES.filter((x) => x.tenantId == tenantId);
+const getChangeTypes = ({ tenantId }) =>
+  CHANGE_TYPES.filter((x) => x.tenantId == tenantId);
 const getTenants = () => TENANTS;
 
 module.exports = {
@@ -189,17 +198,19 @@ module.exports = {
   getChangeTypes,
   getDetailsByVersionId,
   getVersionById,
-  
+
   getSimpleDetail,
   getFullDetail,
   getLinks,
+  getSimpleLink,
 
-getChangeType,
-getApplication,
-getStatus,
-getTargetSystem,
+  getChangeType,
+  getApplication,
+  getStatus,
+  getTargetSystem,
 
   createVersion,
   createVersionDetail,
   deleteVersion,
+  upsertLink,
 };
