@@ -1,4 +1,5 @@
 const { v4: uuidv4 } = require("uuid");
+const _ =require('lodash')
 const {
   VERSIONS,
   APPLICATIONS,
@@ -13,7 +14,7 @@ const {
 const getAllVersions = () => {
   let allVersions = VERSIONS.map((v) => {
     let newVersionWithApp = { ...v };
-    newVersionWithApp.application = APPLICATIONS.find((a) => a.id === v.appId);
+    newVersionWithApp.application = getApplication(v.appId);
     return newVersionWithApp;
   });
   console.log(
@@ -34,7 +35,6 @@ const getVersionsByApp = ({ appIds }) => {
       return newVersionWithApp;
     }
   );
-  console.log("\x1b[36m%s\x1b[0m", JSON.stringify(versionsToFetch));
   return versionsToFetch;
 };
 
@@ -44,16 +44,15 @@ const getVersionById = ({ id }) => {
   let versionToReturn = { ...v };
   var appToAppend = APPLICATIONS.find((a) => a.id == versionToReturn.appId);
   versionToReturn.application = appToAppend;
-  console.log("\x1b[36m%s\x1b[0m", JSON.stringify(versionToReturn));
   return versionToReturn;
 };
 
 const createVersion = function ({ major, minor, patch, description, appId }) {
   let versionToAdd = {
     id: uuidv4(),
-    major: major,
-    minor: minor,
-    patch: patch,
+    major: major|| "",
+    minor: minor|| "",
+    patch: patch|| "",
     description: description || "",
     appId: appId,
   };
